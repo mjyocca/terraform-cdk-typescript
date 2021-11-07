@@ -1,12 +1,24 @@
 import { Construct } from "constructs";
-import { App, TerraformStack } from "cdktf";
+import { App, TerraformStack, TerraformOutput } from "cdktf";
+import { AwsProvider, EC2 } from "./.gen/providers/aws";
 
 class MyStack extends TerraformStack {
-  constructor(scope: Construct, name: string) {
-    super(scope, name);
+	constructor(scope: Construct, id: string) {
+		super(scope, id);
 
-    // define resources here
-  }
+		new AwsProvider(this, "aws", {
+			region: "us-east-1",
+		});
+
+		const instance = new EC2.Instance(this, "Hello", {
+			ami: "ami-2757f631",
+			instanceType: "t2.micro",
+		});
+
+		new TerraformOutput(this, "public_ip", {
+			value: instance.publicIp,
+		});
+	}
 }
 
 const app = new App();
